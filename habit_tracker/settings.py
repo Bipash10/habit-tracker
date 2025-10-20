@@ -2,10 +2,13 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = "your-secret-key"
-DEBUG = False
-ALLOWED_HOSTS = []
 
+# -------------------- Security --------------------
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "fallback-secret-key")
+DEBUG = os.environ.get("DJANGO_DEBUG", "") != "False"
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
+
+# -------------------- Apps --------------------
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -47,25 +50,39 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "habit_tracker.wsgi.application"
 
+# -------------------- Database --------------------
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'habitdb',
-        'USER': 'habituser',
-        'PASSWORD': 'bipash',
-        'HOST': 'localhost',
-        'PORT': '5432',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("POSTGRES_DB", "habitdb"),
+        "USER": os.environ.get("POSTGRES_USER", "habituser"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "bipash"),
+        "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
+        "PORT": os.environ.get("POSTGRES_PORT", "5432"),
     }
 }
 
-
+# -------------------- Static files --------------------
 STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "habits" / "static"]
 
+# -------------------- Auth --------------------
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/login/"
 
+# -------------------- Cron Jobs --------------------
 CRONJOBS = [
     ("0 0 * * *", "habits.cron.reset_habits_daily"),
 ]
+
+# -------------------- Optional: Security for Production --------------------
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")  # e.g., your Render URL
+
+import dj_database_url
+
+DATABASES['default'] = dj_database_url.config(
+    default=os.environ.get("DATABASE_URL")
+)
