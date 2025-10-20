@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home - Habit Tracker</title>
+    <link rel="stylesheet" href="{% static 'habits/home.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Habit Tracker</h1>
+        <nav>
+            <a href="{% url 'home' %}">Home</a> |
+            <a href="{% url 'analytics' %}">Analytics</a> |
+            <a href="{% url 'logout' %}">Logout</a>
+        </nav>
+        <hr>
+    </header>
+
+    <main>
+        <h2>Your Habits</h2>
+        <a href="{% url 'add_habit' %}">➕ Add new habit</a>
+
+        <h3>Good Habits</h3>
+        {% for habit in good_habits %}
+            <div>
+                <b>{{ habit.name }}</b> — {{ habit.status_today }}
+                <a href="{% url 'mark_done' habit.id %}">✅</a>
+                <a href="{% url 'mark_failed' habit.id %}">❌</a>
+                <a href="{% url 'delete_habit' habit.id %}">🗑</a>
+            </div>
+        {% empty %}
+            <p>No good habits yet.</p>
+        {% endfor %}
+
+        <h3>Bad Habits</h3>
+        {% for habit in bad_habits %}
+            <div>
+                <b>{{ habit.name }}</b> — {{ habit.status_today }}
+                <a href="{% url 'mark_done' habit.id %}">✅</a>
+                <a href="{% url 'mark_failed' habit.id %}">❌</a>
+                <a href="{% url 'delete_habit' habit.id %}">🗑</a>
+            </div>
+        {% empty %}
+            <p>No bad habits yet.</p>
+        {% endfor %}
+    </main>
+
+    <footer>
+        <hr>
+        <p>&copy; 2025 Habit Tracker</p>
+    </footer>
+</body>
+</html>

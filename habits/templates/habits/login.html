@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Habit Tracker</title>
+    <link rel="stylesheet" href="{% static 'habits/auth.css' %}">
+</head>
+<body>
+    <div class="auth-container">
+        <h2>Login</h2>
+
+        {% if messages %}
+            <ul class="error">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <p>
+                <label for="username">Username</label>
+                <input type="text" name="username" required>
+            </p>
+            <p>
+                <label for="password">Password</label>
+                <input type="password" name="password" required>
+            </p>
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="auth-links">
+            <span>Don't have an account?</span>
+            <a href="{% url 'signup' %}">Sign Up</a>
+        </div>
+    </div>
+</body>
+</html>

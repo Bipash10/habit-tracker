@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analytics</title>
+    <link rel="stylesheet" href="{% static 'habits/analytics.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<h2>Analytics Dashboard</h2>
+
+<div>
+    <p><strong>Total Habits:</strong> {{ total_habits }}</p>
+    <p><strong>Total Completed:</strong> {{ total_completed }}</p>
+    <p><strong>Total Failed:</strong> {{ total_failed }}</p>
+    <p><strong>Overall Completion Rate:</strong> {{ overall_completion_rate }}%</p>
+</div>
+
+<hr>
+
+<h3>Charts</h3>
+<canvas id="overallChart" width="400" height="200"></canvas>
+<canvas id="perHabitChart" width="400" height="200"></canvas>
+
+<hr>
+
+<h3>Per Habit Stats</h3>
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Completed</th>
+        <th>Failed</th>
+        <th>Completion Rate</th>
+    </tr>
+    {% for habit in habit_stats %}
+    <tr>
+        <td>{{ habit.name }}</td>
+        <td>{{ habit.type }}</td>
+        <td>{{ habit.completed }}</td>
+        <td>{{ habit.failed }}</td>
+        <td>{{ habit.completion_rate }}%</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<script>
+    // Overall Completed vs Failed Pie Chart
+    const overallCtx = document.getElementById('overallChart').getContext('2d');
+    new Chart(overallCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Completed', 'Failed'],
+            datasets: [{
+                label: 'Overall',
+                data: [{{ total_completed }}, {{ total_failed }}],
+                backgroundColor: ['#4CAF50', '#F44336']
+            }]
+        }
+    });
+
+    // Per Habit Bar Chart
+    const habitLabels = [{% for habit in habit_stats %}'{{ habit.name }}',{% endfor %}];
+    const completedData = [{% for habit in habit_stats %}{{ habit.completed }},{% endfor %}];
+    const failedData = [{% for habit in habit_stats %}{{ habit.failed }},{% endfor %}];
+
+    const perHabitCtx = document.getElementById('perHabitChart').getContext('2d');
+    new Chart(perHabitCtx, {
+        type: 'bar',
+        data: {
+            labels: habitLabels,
+            datasets: [
+                {
+                    label: 'Completed',
+                    data: completedData,
+                    backgroundColor: '#4CAF50'
+                },
+                {
+                    label: 'Failed',
+                    data: failedData,
+                    backgroundColor: '#F44336'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+</body>
+</html>
